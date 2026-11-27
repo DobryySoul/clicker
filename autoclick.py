@@ -27,14 +27,23 @@ def automation():
 
         while running.is_set() and not shutdown.is_set():
 
-            # Небольшое случайное смещение курсора
-            target_x = original_x + random.randint(-25, 25)
-            target_y = original_y + random.randint(-20, 20)
+            # Случайное, более заметное перемещение курсора
+            current_x, current_y = pyautogui.position()
+
+            while True:
+                target_x = original_x + random.randint(-60, 60)
+                target_y = original_y + random.randint(-45, 45)
+
+                distance = ((target_x - current_x) ** 2 +
+                            (target_y - current_y) ** 2) ** 0.5
+
+                if distance >= 25:
+                    break
 
             pyautogui.moveTo(
                 target_x,
                 target_y,
-                duration=random.uniform(0.15, 0.3)
+                duration=random.uniform(0.3, 0.5)
             )
 
             if not running.is_set() or shutdown.is_set():
