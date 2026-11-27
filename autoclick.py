@@ -40,16 +40,29 @@ def automation():
             if not running.is_set() or shutdown.is_set():
                 break
 
-            # 1. Удержание ЛКМ около 3 секунд
-            click_duration = random.uniform(2.7, 3.1)
+            # 1. Удержание ЛКМ + случайное нажатие Mouse 4
+            click_duration = random.uniform(0.4, 0.87)
 
             pyautogui.mouseDown(button="left")
-            print(f"[MOUSE] Первый клик ЛКМ: {click_duration:.2f} сек")
 
-            if interruptible_wait(click_duration):
+            print(f"[MOUSE] ЛКМ зажата на {click_duration:.2f} сек")
+
+            # Случайный момент нажатия Mouse 4 внутри удержания ЛКМ
+            mouse4_delay = random.uniform(0.05, max(0.05, click_duration - 0.1))
+
+            if interruptible_wait(mouse4_delay):
                 break
 
+            pyautogui.mouseDown(button="x1")
+            print("[MOUSE] Mouse 4 нажата")
+
+            if interruptible_wait(click_duration - mouse4_delay):
+                break
+
+            pyautogui.mouseUp(button="x1")
             pyautogui.mouseUp(button="left")
+
+            print("[MOUSE] ЛКМ и Mouse 4 отпущены")
 
             # 2. Пауза около 2 секунд
             wait_time = random.uniform(1.8, 2.3)
@@ -57,11 +70,10 @@ def automation():
             if interruptible_wait(wait_time):
                 break
 
-            # 3. Длительное удержание ЛКМ + Shift
+            # 3. Длительное удержание ЛКМ
             hold_duration = random.uniform(58.5, 62.0)
             right_click_duration = random.uniform(2.7, 3.3)
 
-            pyautogui.keyDown("shift")
             pyautogui.mouseDown(button="left")
 
             print(
@@ -96,7 +108,6 @@ def automation():
             # Отпускание всех кнопок после длительного удержания
             pyautogui.mouseUp(button="right")
             pyautogui.mouseUp(button="left")
-            pyautogui.keyUp("shift")
 
             print("[MOUSE] ЛКМ, ПКМ и SHIFT отпущены")
 
@@ -124,8 +135,8 @@ def automation():
         # Гарантированное отпускание всех кнопок
         pyautogui.mouseUp(button="left")
         pyautogui.mouseUp(button="right")
-        pyautogui.keyUp("shift")
         pyautogui.keyUp("space")
+        pyautogui.mouseUp(button="x1")
 
         running.clear()
 
@@ -161,7 +172,6 @@ def exit_program():
 
     pyautogui.mouseUp(button="left")
     pyautogui.mouseUp(button="right")
-    pyautogui.keyUp("shift")
     pyautogui.keyUp("space")
 
 
