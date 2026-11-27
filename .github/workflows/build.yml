@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyautogui keyboard pynput pyinstaller
+          pip install pyautogui keyboard pynput pyinstaller ctypes
 
       - name: Build EXE
         run: |
