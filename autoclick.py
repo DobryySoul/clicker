@@ -61,7 +61,7 @@ def automation():
 
             pyautogui.press("space")
 
-            print("[KEYBOARD] Двойной пробел")
+            print("[KEYBOARD] Пробел")
 
     except pyautogui.FailSafeException:
         print("[ERROR] Сработала аварийная защита PyAutoGUI")
