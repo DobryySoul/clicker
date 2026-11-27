@@ -21,17 +21,20 @@ def automation():
         if interruptible_wait(5):
             return
 
+        original_x, original_y = pyautogui.position()
+
         print("[START] Автоматизация запущена")
 
         while running.is_set() and not shutdown.is_set():
 
             # Небольшое случайное смещение курсора
-            dx = random.randint(-3, 3)
-            dy = random.randint(-3, 3)
+            target_x = original_x + random.randint(-25, 25)
+            target_y = original_y + random.randint(-20, 20)
 
-            pyautogui.moveRel(
-                dx, dy,
-                duration=random.uniform(0.05, 0.15)
+            pyautogui.moveTo(
+                target_x,
+                target_y,
+                duration=random.uniform(0.15, 0.3)
             )
 
             if not running.is_set() or shutdown.is_set():
