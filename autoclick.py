@@ -4,6 +4,9 @@ import time
 import threading
 import pyautogui
 import keyboard
+from pynput.mouse import Controller, Button
+
+mouse = Controller()
 
 running = threading.Event()
 shutdown = threading.Event()
@@ -62,13 +65,13 @@ def automation():
             if interruptible_wait(mouse4_delay):
                 break
 
-            pyautogui.mouseDown(button="x1")
+            mouse.press(Button.x1)
             print("[MOUSE] Mouse 4 нажата")
 
             if interruptible_wait(click_duration - mouse4_delay):
                 break
 
-            pyautogui.mouseUp(button="x1")
+            mouse.release(Button.x1)
             pyautogui.mouseUp(button="left")
 
             print("[MOUSE] ЛКМ и Mouse 4 отпущены")
@@ -145,7 +148,7 @@ def automation():
         pyautogui.mouseUp(button="left")
         pyautogui.mouseUp(button="right")
         pyautogui.keyUp("space")
-        pyautogui.mouseUp(button="x1")
+        mouse.release(Button.x1)
 
         running.clear()
 
