@@ -82,46 +82,50 @@ def automation():
             if interruptible_wait(wait_time):
                 break
 
-            # 3. Длительное удержание ЛКМ
-            hold_duration = random.uniform(15.0, 20.0)
-            right_click_duration = random.uniform(2.7, 3.3)
+            # 3. Два последовательных длительных удержания ЛКМ
+            for hold_number in range(2):
 
-            pyautogui.mouseDown(button="left")
+                hold_duration = random.uniform(28.0, 32.0)
+                right_click_duration = random.uniform(2.7, 3.3)
 
-            print(
-                f"[MOUSE] ЛКМ: "
-                f"{hold_duration:.2f} сек"
-            )
+                pyautogui.mouseDown(button="left")
 
-            start_time = time.monotonic()
-            right_click_done = False
+                print(
+                    f"[MOUSE] Удержание ЛКМ "
+                    f"{hold_number + 1}/2: {hold_duration:.2f} сек"
+                )
 
-            while time.monotonic() - start_time < hold_duration:
+                start_time = time.monotonic()
+                right_click_done = False
+
+                while time.monotonic() - start_time < hold_duration:
+
+                    if shutdown.is_set() or not running.is_set():
+                        break
+
+                    elapsed = time.monotonic() - start_time
+                    remaining = hold_duration - elapsed
+
+                    # ПКМ в последние 2.7–3.3 секунды
+                    if not right_click_done and remaining <= right_click_duration:
+                        pyautogui.mouseDown(button="right")
+                        right_click_done = True
+
+                        print(
+                            f"[MOUSE] ПКМ зажата: "
+                            f"{right_click_duration:.2f} сек"
+                        )
+
+                    time.sleep(0.05)
+
+                # Отпускаем обе кнопки после каждого удержания
+                pyautogui.mouseUp(button="right")
+                pyautogui.mouseUp(button="left")
+
+                print(f"[MOUSE] Удержание {hold_number + 1}/2 завершено")
 
                 if shutdown.is_set() or not running.is_set():
                     break
-
-                elapsed = time.monotonic() - start_time
-                remaining = hold_duration - elapsed
-
-                # 4. ПКМ в последние 3 секунды
-                if not right_click_done and remaining <= right_click_duration:
-
-                    pyautogui.mouseDown(button="right")
-                    right_click_done = True
-
-                    print(
-                        f"[MOUSE] ПКМ зажата: "
-                        f"{right_click_duration:.2f} сек"
-                    )
-
-                time.sleep(0.05)
-
-            # Отпускание всех кнопок после длительного удержания
-            pyautogui.mouseUp(button="right")
-            pyautogui.mouseUp(button="left")
-
-            print("[MOUSE] ЛКМ, ПКМ и SHIFT отпущены")
 
             if shutdown.is_set() or not running.is_set():
                 break
