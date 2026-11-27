@@ -11,6 +11,12 @@ shutdown = threading.Event()
 
 def automation():
     try:
+        print("[START] Автоматизация начнётся через 5 секунд...")
+        time.sleep(5)
+
+        if not running.is_set() or shutdown.is_set():
+            return
+
         print("[START] Автоматизация запущена")
 
         while running.is_set() and not shutdown.is_set():
@@ -19,11 +25,14 @@ def automation():
             dy = random.randint(-3, 3)
             pyautogui.moveRel(dx, dy, duration=random.uniform(0.05, 0.15))
 
-            # 1. Короткий клик ЛКМ
+            # 1. Удержание ЛКМ около 3 секунд с jitter
+            click_duration = random.uniform(2.7, 3.1)
+
             pyautogui.mouseDown(button="left")
-            time.sleep(random.uniform(0.06, 0.14))
+            time.sleep(click_duration)
             pyautogui.mouseUp(button="left")
-            print("[MOUSE] Короткий клик ЛКМ")
+
+            print(f"[MOUSE] ЛКМ нажата на {click_duration:.2f} секунд")
 
             # 2. Ожидание около 2 секунд
             wait_time = random.uniform(1.8, 2.3)
