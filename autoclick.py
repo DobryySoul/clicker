@@ -83,13 +83,13 @@ def automation():
                 break
 
             # 3. Длительное удержание ЛКМ
-            hold_duration = random.uniform(58.5, 62.0)
+            hold_duration = random.uniform(15.0, 20.0)
             right_click_duration = random.uniform(2.7, 3.3)
 
             pyautogui.mouseDown(button="left")
 
             print(
-                f"[MOUSE] ЛКМ + SHIFT: "
+                f"[MOUSE] ЛКМ: "
                 f"{hold_duration:.2f} сек"
             )
 
