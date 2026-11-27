@@ -59,9 +59,6 @@ def automation():
             if shutdown.is_set() or not running.is_set():
                 break
 
-            # Два нажатия пробела
-            pyautogui.press("space")
-            time.sleep(SPACE_DELAY)
             pyautogui.press("space")
 
             print("[KEYBOARD] Двойной пробел")
