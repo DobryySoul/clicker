@@ -5,11 +5,52 @@ import threading
 import pyautogui
 import keyboard
 from pynput.mouse import Controller, Button
+import ctypes
 
 mouse = Controller()
 
 running = threading.Event()
 shutdown = threading.Event()
+
+# Относительное перемещение мыши через Windows API
+MOUSEEVENTF_MOVE = 0x0001
+
+def move_mouse_relative(dx, dy):
+    extra = ctypes.c_ulong(0)
+
+    class MOUSEINPUT(ctypes.Structure):
+        _fields_ = [
+            ("dx", ctypes.c_long),
+            ("dy", ctypes.c_long),
+            ("mouseData", ctypes.c_ulong),
+            ("dwFlags", ctypes.c_ulong),
+            ("time", ctypes.c_ulong),
+            ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong))
+        ]
+
+    class INPUT(ctypes.Structure):
+        _fields_ = [
+            ("type", ctypes.c_ulong),
+            ("mi", MOUSEINPUT)
+        ]
+
+    inp = INPUT(
+        type=0,
+        mi=MOUSEINPUT(
+            dx=dx,
+            dy=dy,
+            mouseData=0,
+            dwFlags=MOUSEEVENTF_MOVE,
+            time=0,
+            dwExtraInfo=ctypes.pointer(extra)
+        )
+    )
+
+    ctypes.windll.user32.SendInput(
+        1,
+        ctypes.byref(inp),
+        ctypes.sizeof(INPUT)
+    )
 
 
 def interruptible_wait(duration):
