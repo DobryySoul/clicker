@@ -1,31 +1,4 @@
-
-import time
-import threading
-import pyautogui
-import keyboard
-
-# =================================
-# НАСТРОЙКИ
-# =================================
-
-START_DELAY = 2
-HOLD_TIME = 60
-SPACE_DELAY = 0.2
-
-# =================================
-# СОСТОЯНИЕ
-# =================================
-
-running = threading.Event()
-shutdown = threading.Event()
-
-worker = None
-lock = threading.Lock()
-
-
-# =================================
-# ОСНОВНОЙ ЦИКЛ
-# =================================
+import random  # Обязательно добавьте этот импорт в начало файла
 
 def automation():
     try:
@@ -33,121 +6,57 @@ def automation():
 
         while running.is_set() and not shutdown.is_set():
 
-            # Ожидание перед началом
-            if shutdown.wait(START_DELAY):
-                break
+            # Небольшой случайный сдвиг курсора (на 1-3 пикселя), чтобы клики не были в одну точку
+            dx = random.randint(-3, 3)
+            dy = random.randint(-3, 3)
+            pyautogui.moveRel(dx, dy, duration=random.uniform(0.05, 0.15))
 
-            if not running.is_set():
-                break
-
-            # Зажимаем ЛКМ
+            # 1. Короткий клик ЛКМ с человеческой длительностью нажатия
             pyautogui.mouseDown(button="left")
-            print("[MOUSE] ЛКМ зажата")
+            time.sleep(random.uniform(0.06, 0.14))
+            pyautogui.mouseUp(button="left")
+            print("[MOUSE] Короткий клик ЛКМ")
+
+            # 2. Ожидание ~2 секунды (от 1.8 до 2.3 сек)
+            wait_time = random.uniform(1.8, 2.3)
+            if shutdown.wait(wait_time) or not running.is_set():
+                break
+
+            # 3. Зажатие ЛКМ на ~60 секунд (от 58.5 до 62.0 сек)
+            hold_duration = random.uniform(58.5, 62.0)
+            pyautogui.mouseDown(button="left")
+            print(f"[MOUSE] ЛКМ зажата на {hold_duration:.1f} секунд")
 
             start_time = time.monotonic()
 
-            # Удерживаем 60 секунд
-            while time.monotonic() - start_time < HOLD_TIME:
+            while time.monotonic() - start_time < hold_duration:
                 if shutdown.is_set() or not running.is_set():
                     break
                 time.sleep(0.05)
 
-            # Отпускаем ЛКМ
+            # 4. Обязательно отпускаем ЛКМ
             pyautogui.mouseUp(button="left")
             print("[MOUSE] ЛКМ отпущена")
 
             if shutdown.is_set() or not running.is_set():
                 break
 
-            pyautogui.press("space")
+            # Небольшая пауза перед пробелом (от 0.15 до 0.4 сек)
+            if shutdown.wait(random.uniform(0.15, 0.4)) or not running.is_set():
+                break
 
+            # 5. Нажатие пробела с естественной длительностью удержания клавиши
+            pyautogui.keyDown("space")
+            time.sleep(random.uniform(0.07, 0.16))
+            pyautogui.keyUp("space")
             print("[KEYBOARD] Пробел")
 
-    except pyautogui.FailSafeException:
-        print("[ERROR] Сработала аварийная защита PyAutoGUI")
+            # Пауза перед началом следующего цикла (от 0.4 до 0.9 сек)
+            if shutdown.wait(random.uniform(0.4, 0.9)) or not running.is_set():
+                break
 
     finally:
         pyautogui.mouseUp(button="left")
+        pyautogui.keyUp("space")  # На всякий случай отпускаем и пробел при экстренной остановке
         running.clear()
         print("[STOP] Цикл завершён")
-
-
-# =================================
-# УПРАВЛЕНИЕ
-# =================================
-
-def start():
-    global worker
-
-    with lock:
-        if shutdown.is_set():
-            return
-
-        if worker is not None and worker.is_alive():
-            print("[INFO] Цикл уже работает или завершается")
-            return
-
-        running.set()
-
-        worker = threading.Thread(
-            target=automation,
-            daemon=True
-        )
-
-        worker.start()
-
-
-def stop():
-    running.clear()
-    pyautogui.mouseUp(button="left")
-    print("[STOP] Остановка запрошена")
-
-
-def close():
-    if shutdown.is_set():
-        return
-
-    print("[EXIT] Закрытие программы")
-
-    shutdown.set()
-    running.clear()
-    pyautogui.mouseUp(button="left")
-
-
-# =================================
-# ГОРЯЧИЕ КЛАВИШИ
-# =================================
-
-keyboard.add_hotkey("F6", start)
-keyboard.add_hotkey("F7", stop)
-keyboard.add_hotkey("F8", close)
-
-
-# =================================
-# ЗАПУСК ПРОГРАММЫ
-# =================================
-
-print("===================================")
-print("          AUTOCLICKER")
-print("===================================")
-print("F6 - Запуск")
-print("F7 - Остановка")
-print("F8 - Выход")
-print("===================================")
-print("Ожидание команды...")
-
-try:
-    while not shutdown.is_set():
-        time.sleep(0.2)
-
-except KeyboardInterrupt:
-    print("[INFO] Прерывание")
-
-finally:
-    shutdown.set()
-    running.clear()
-
-    pyautogui.mouseUp(button="left")
-    keyboard.unhook_all()
-
-    print("[EXIT] Программа закрыта")
